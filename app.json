@@ -1,0 +1,12 @@
+{
+  "name": "Mat",
+  "displayName": "Mat",
+  "expo": {
+    "name": "Mat",
+    "slug": "Mat",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
