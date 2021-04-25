@@ -16,37 +16,43 @@ import {
   Alert,
 } from 'react-native';
 import { Card, ListItem, Button, Icon } from 'react-native-elements';
-import auth from '@react-native-firebase/auth';
 import Loader from '../Components/Loader';
-
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
 class HomeScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.getData();
+  }
     state = {
         users: [],
         loading : false
       }
     componentDidMount() {
+      
         auth().onAuthStateChanged((user) => {
+          this.getData(user.uid);
             if (!user) {
                 this.props.navigation.navigate('LoginScreen')
             }
           });
-        var users = [
-            {
-               name: 'brynn',
-               avatar: 'https://s3.amazonaws.com/uifaces/faces/twitter/brynn/128.jpg'
-            },
-            {
-                name : 'DANY',
-                avatar : "wwww.whatever.com/p.png"
-        
-            },
-            {
-                name : 'farooq',
-                avatar : 'aloha.png'
-            }
-           ];
-        this.setState({ users : users});
         this.setState({loading : false})
+    }
+    getData = async(uid) => {
+      
+      const userData = [];
+      await firestore().collection('users').get()
+            .then(snapshot => {
+                snapshot.docs.forEach(hospital => {
+                    let currentID = hospital.id
+                    let appObj = { ...hospital.data(), ['id']: currentID }
+                    //userData.push(appObj)
+
+                    userData.push(hospital.data())
+            });
+          });
+      this.setState({users : userData})
     }
     logout = () =>{
         auth().signOut().then(() =>  {
@@ -68,24 +74,27 @@ class HomeScreen extends React.Component {
                     alignContent: 'center',
                     }}>
                     <View>
-                    <Card>
-                        <Card.Title>CARD WITH DIVIDER</Card.Title>
-                        <Card.Divider/>
-                        {
-                            this.state.users.map((u, i) => {
-                            return (
-                                <View key={i} style={styles.user}>
+                      {
+                        this.state.users.map((u, i) => {
+                        return (
+                          <Card key={i}>
+                              <Card.Title>CARD WITH DIVIDER</Card.Title>
+                              <Card.Divider/>
+                              
+                                <View style={styles.user}>
                                 <Image
                                     style={styles.image}
                                     resizeMode="cover"
                                     source={{ uri: u.avatar }}
                                 />
-                                <Text style={styles.name}>{u.name}</Text>
-                                </View>
+                                <Text style={styles.name}>{u.firstName} {u.lastName}</Text>
+                                <Text style={styles.name}>{u.age}</Text>
+                                <Text style={styles.name}>{u.dob}</Text>
+                                </View>      
+                          </Card>
                             );
-                            })
+                        })
                         }
-                    </Card>
                     <KeyboardAvoidingView enabled>
                         <View style={{alignItems: 'center'}}>
                         <TouchableOpacity
@@ -179,5 +188,8 @@ const styles = StyleSheet.create({
       fontSize: 14,
     },
   });
-export default HomeScreen;
+  export default function (props) {
+    const navigation = useNavigation();
+    return <HomeScreen {...props} navigation={navigation} />;
+  }
 

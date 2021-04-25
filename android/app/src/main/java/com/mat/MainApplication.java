@@ -3,7 +3,7 @@ package com.mat;
 import android.app.Application;
 import android.content.Context;
 import android.net.Uri;
-
+import androidx.multidex.MultiDexApplication; // <-- ADD THIS IMPORT
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class MainApplication extends Application implements ReactApplication {
+public class MainApplication extends MultiDexApplication implements ReactApplication {
   private final ReactModuleRegistryProvider mModuleRegistryProvider = new ReactModuleRegistryProvider(
     new BasePackageList().getPackageList()
   );
